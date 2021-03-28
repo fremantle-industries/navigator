@@ -1,0 +1,45 @@
+name: code-coverage
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    name: Test OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+
+    strategy:
+      matrix:
+        otp: [21.x, 22.x, 23.x]
+        elixir: [1.8.x, 1.9.x, 1.10.x, 1.11.x]
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - uses: erlef/setup-elixir@v1.6.0
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+
+      - name: Cache Elixir Build & Dependencies
+        uses: actions/cache@v2.1.4
+        with:
+          path: |
+            deps
+            _build/dev
+            _build/test
+          key: cache-elixir-${{secrets.CACHE_VERSION}}-${{runner.os}}-${{hashFiles('mix.lock')}}-${{github.ref}}
+          restore-keys: |
+            cache-elixir-${{secrets.CACHE_VERSION}}-${{runner.os}}-${{hashFiles('mix.lock')}}-
+            cache-elixir-${{secrets.CACHE_VERSION}}-${{runner.os}}-
+
+      - name: Install Dependencies
+        run: mix deps.get
+
+      - name: Coveralls
+        env:
+          MIX_ENV: test
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+        run: mix coveralls.github
