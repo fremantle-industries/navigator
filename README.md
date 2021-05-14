@@ -3,7 +3,9 @@
 [![Build Status](https://github.com/fremantle-industries/navigator/workflows/test/badge.svg?branch=main)](https://github.com/fremantle-industries/navigator/actions?query=workflow%3Atest)
 [![hex.pm version](https://img.shields.io/hexpm/v/navigator.svg?style=flat)](https://hex.pm/packages/navigator)
 
-Global navigation between multiple Phoenix endpoints
+Global navigation between multiple Phoenix endpoints, tailwindcss friendly
+
+![navigation](./docs/navigation.png)
 
 ## Installation
 
