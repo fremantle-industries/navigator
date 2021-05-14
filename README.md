@@ -14,7 +14,7 @@ Add the `navigator` package to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:navigator, "~> 0.0.2"}
+    {:navigator, "~> 0.0.3"}
   ]
 end
 ```
