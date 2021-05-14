@@ -2,20 +2,23 @@ defmodule Navigator do
   use Phoenix.HTML
 
   def render("horizontal.html", assigns) do
+    conn = assigns[:conn]
+    class = assigns[:class]
+
     ~E"""
-    <header class="bg-gray-50 py-4">
-      <div class="mx-4">
-        <nav class="flex flex-row items-center space-x-4">
-          <%= for l <- Navigator.Links.all(otp_app(assigns.conn), assigns.conn) do %>
-            <%= link l.label, link_args(l) %>
-          <% end %>
-        </nav>
-      </div>
-    </header>
+    <nav class="flex flex-row items-center space-x-4 <%= class %>">
+      <%= for l <- Navigator.Links.all(otp_app(conn), conn) do %>
+        <%= link l.label, link_args(l) %>
+      <% end %>
+    </nav>
     """
   end
 
-  defp otp_app(%_{} = conn) do
+  defp otp_app(%Phoenix.LiveView.Socket{} = socket) do
+    socket.endpoint.config(:otp_app)
+  end
+
+  defp otp_app(%Plug.Conn{} = conn) do
     conn.private.phoenix_endpoint.config(:otp_app)
   end
 
