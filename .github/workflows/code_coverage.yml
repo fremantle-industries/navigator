@@ -12,13 +12,13 @@ jobs:
 
     strategy:
       matrix:
-        otp: [21.x, 22.x, 23.x]
-        elixir: [1.8.x, 1.9.x, 1.10.x, 1.11.x]
+        otp: [22.x, 23.x, 24.x]
+        elixir: [1.10.x, 1.11.x, 1.12.x]
 
     steps:
       - uses: actions/checkout@v2.3.4
 
-      - uses: erlef/setup-elixir@v1.6.0
+      - uses: erlef/setup-elixir@v1.7.1
         with:
           otp-version: ${{matrix.otp}}
           elixir-version: ${{matrix.elixir}}
@@ -30,10 +30,10 @@ jobs:
             deps
             _build/dev
             _build/test
-          key: cache-elixir-${{secrets.CACHE_VERSION}}-${{runner.os}}-${{hashFiles('mix.lock')}}-${{github.ref}}
+          key: elixir-cache-${{secrets.CACHE_VERSION}}-${{matrix.elixir}}-otp-${{matrix.otp}}-${{runner.os}}-${{hashFiles('mix.lock')}}-${{github.ref}}
           restore-keys: |
-            cache-elixir-${{secrets.CACHE_VERSION}}-${{runner.os}}-${{hashFiles('mix.lock')}}-
-            cache-elixir-${{secrets.CACHE_VERSION}}-${{runner.os}}-
+            elixir-cache-${{secrets.CACHE_VERSION}}-${{matrix.elixir}}-otp-${{matrix.otp}}-${{runner.os}}-${{hashFiles('mix.lock')}}-
+            elixir-cache-${{secrets.CACHE_VERSION}}-${{matrix.elixir}}-otp-${{matrix.otp}}-${{runner.os}}-
 
       - name: Install Dependencies
         run: mix deps.get

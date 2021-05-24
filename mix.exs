@@ -5,7 +5,7 @@ defmodule Navigator.MixProject do
     [
       app: :navigator,
       version: "0.0.3",
-      elixir: "~> 1.8",
+      elixir: "~> 1.10",
       package: package(),
       start_permanent: Mix.env() == :prod,
       description: description(),
