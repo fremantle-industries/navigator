@@ -24,12 +24,17 @@ defmodule Navigator do
 
   @default_class "text-black hover:text-opacity-75"
 
-  defp link_args(link) do
-    {h, f, a} = link.link
+  defp link_args(nav_link) do
+    [to: to(nav_link), class: @default_class]
+    |> with_method(nav_link)
+    |> with_class(nav_link)
+  end
 
-    [to: apply(h, f, a), class: @default_class]
-    |> with_method(link)
-    |> with_class(link)
+  defp to(nav_link) do
+    case nav_link.link do
+      {h, f, a} -> apply(h, f, a)
+      link -> link
+    end
   end
 
   defp with_method(args, link) do

@@ -29,5 +29,9 @@ config :navigator,
         label: "Order Admin",
         link: {AdminWeb.Router.Helpers, :order_path, [AdminWeb.Endpoint, :index]}
       },
+      %{
+        label: "Analytics",
+        link: "https://analytics.google.com"
+      }
     ]
   }
