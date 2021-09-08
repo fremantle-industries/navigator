@@ -22,7 +22,7 @@ defmodule Navigator.MixProject do
 
   defp deps do
     [
-      {:phoenix_html, "~> 2.0"},
+      {:phoenix_html, "~> 2.0 or ~> 3.0"},
       {:phoenix_live_view, "~> 0.15"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
