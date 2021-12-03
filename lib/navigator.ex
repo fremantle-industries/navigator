@@ -1,12 +1,13 @@
 defmodule Navigator do
   use Phoenix.HTML
+  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
   def render("horizontal.html", assigns) do
     conn = assigns[:conn]
     class = assigns[:class]
 
-    ~E"""
-    <nav class="flex flex-row items-center space-x-4 <%= class %>">
+    ~H"""
+    <nav class={"flex flex-row items-center space-x-4 #{class}"}>
       <%= for l <- Navigator.Links.all(otp_app(conn), conn) do %>
         <%= link l.label, link_args(l) %>
       <% end %>
