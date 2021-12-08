@@ -1,6 +1,6 @@
 defmodule Navigator do
   use Phoenix.HTML
-  import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
+  import Phoenix.LiveView.Helpers, only: [live_patch: 2, sigil_H: 2]
 
   def render("horizontal.html", assigns) do
     conn = assigns[:conn]
