@@ -25,7 +25,7 @@ Configure the navigation links in `config/config.exs`
 
 ```elixir
 # config/config.exs
-use Mix.Config
+import Config
 
 config :navigator,
   links: %{
