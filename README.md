@@ -1,5 +1,4 @@
 # Navigator
-
 [![Build Status](https://github.com/fremantle-industries/navigator/workflows/test/badge.svg?branch=main)](https://github.com/fremantle-industries/navigator/actions?query=workflow%3Atest)
 [![hex.pm version](https://img.shields.io/hexpm/v/navigator.svg?style=flat)](https://hex.pm/packages/navigator)
 
@@ -32,27 +31,27 @@ config :navigator,
     storefront: [
       %{
         label: "Storefront Home",
-        link: {StorefrontWeb.Router.Helpers, :home_path, [StorefrontWeb.Endpoint, :index]},
+        to: {StorefrontWeb.Router.Helpers, :home_path, [StorefrontWeb.Endpoint, :index]},
         class: "text-4xl"
       },
       %{
         label: "Orders",
-        link: {StorefrontWeb.Router.Helpers, :order_path, [StorefrontWeb.Endpoint, :index]}
+        to: {StorefrontWeb.Router.Helpers, :order_path, [StorefrontWeb.Endpoint, :index]}
       },
       %{
         label: "Admin",
-        link: {AdminWeb.Router.Helpers, :home_url, [AdminWeb.Endpoint, :index]}
+        to: {AdminWeb.Router.Helpers, :home_url, [AdminWeb.Endpoint, :index]}
       }
     ],
     admin: [
       %{
         label: "Admin Home",
-        link: {AdminWeb.Router.Helpers, :home_path, [AdminWeb.Endpoint, :index]},
+        to: {AdminWeb.Router.Helpers, :home_path, [AdminWeb.Endpoint, :index]},
         class: "text-4xl"
       },
       %{
         label: "Order Admin",
-        link: {AdminWeb.Router.Helpers, :order_path, [AdminWeb.Endpoint, :index]}
+        to: {AdminWeb.Router.Helpers, :order_path, [AdminWeb.Endpoint, :index]}
       },
     ]
   }

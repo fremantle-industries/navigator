@@ -3,13 +3,14 @@ defmodule Navigator.Link do
 
   @type t :: %Link{
           label: String.t(),
-          link: mfa,
+          to: mfa,
+          children: [t],
           class: String.t | nil,
           icon: String.t() | nil,
           method: :get | :post | :put | :patch | :delete | nil,
           condition: mfa | nil
         }
 
-  @enforce_keys ~w[label link]a
-  defstruct ~w[label link class icon method condition]a
+  @enforce_keys ~w[label to children]a
+  defstruct ~w[label to children class icon method condition]a
 end
