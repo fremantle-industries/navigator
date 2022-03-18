@@ -1,8 +1,9 @@
 defmodule Navigator.Link do
   alias __MODULE__
 
+  @type label :: String.t() | mfa
   @type t :: %Link{
-          label: String.t(),
+          label: label,
           to: mfa,
           children: [t],
           class: String.t | nil,

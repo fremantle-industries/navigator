@@ -32,11 +32,19 @@ defmodule Navigator.Layouts.Horizontal do
     |> Enum.reduce(
       {[], []},
       fn link, {l, c} ->
-        prepared_links = l ++ [{link.label, link_options(link)}]
+        label = generate_label(link)
+        prepared_links = l ++ [{label, link_options(link)}]
         child_links = c ++ link.children
         {prepared_links, child_links}
       end
     )
+  end
+
+  defp generate_label(link) do
+    case link.label do
+      {m, f, a} -> apply(m, f, a)
+      l -> l
+    end
   end
 
   defp link_options(link) do
