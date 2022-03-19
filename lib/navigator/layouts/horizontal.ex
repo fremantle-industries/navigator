@@ -7,6 +7,7 @@ defmodule Navigator.Layouts.Horizontal do
     class = assigns[:class]
     links = assigns[:links] || Navigator.Links.all(otp_app(conn), conn)
     {prepared_links, child_links} = prepare_links(links)
+    child_assigns = Map.put(assigns, :links, child_links)
 
     ~H"""
     <nav class={"flex flex-row items-center space-x-4 #{class}"}>
@@ -15,7 +16,7 @@ defmodule Navigator.Layouts.Horizontal do
       <% end %>
     </nav>
     <%= if Enum.any?(child_links) do %>
-      <%= assigns |> Map.put(:links, child_links) |> render() %>
+      <%= render(child_assigns) %>
     <% end %>
     """
   end
