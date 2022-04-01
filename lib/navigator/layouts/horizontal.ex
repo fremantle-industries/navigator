@@ -2,41 +2,89 @@ defmodule Navigator.Layouts.Horizontal do
   use Phoenix.HTML
   import Phoenix.LiveView.Helpers, only: [sigil_H: 2]
 
+  alias Navigator.OtpApps
+  alias Navigator.LinkApps
+
   def render(assigns) do
     conn = assigns[:conn]
-    class = assigns[:class]
-    links = assigns[:links] || Navigator.Links.all(otp_app(conn), conn)
-    {prepared_links, child_links} = prepare_links(links)
-    child_assigns = Map.put(assigns, :links, child_links)
+    otp_app = OtpApps.get!(conn)
+    link_app = LinkApps.get!(otp_app)
+    tree = link_app.links
+    active_node_id = find_active_node_id(tree, conn.request_path)
+    rows = build_rows(tree, active_node_id)
 
-    ~H"""
-    <nav class={"flex flex-row items-center space-x-4 #{class}"}>
-      <%= for {label, opts} <- prepared_links do %>
-        <%= link label, opts %>
-      <% end %>
-    </nav>
-    <%= if Enum.any?(child_links) do %>
-      <%= render(child_assigns) %>
-    <% end %>
-    """
+    render_nav_rows(rows, %{class: link_app.class})
   end
 
-  defp otp_app(c) do
-    case c do
-      %Phoenix.LiveView.Socket{} -> c.endpoint.config(:otp_app)
-      %Plug.Conn{}  -> c.private.phoenix_endpoint.config(:otp_app)
+  defp render_nav_rows(rows, assigns) do
+    case rows do
+      [] ->
+        ""
+
+      [row_nodes | rows] ->
+        prepared_links = prepare_links(row_nodes)
+
+        ~H"""
+        <nav class={"flex flex-row items-center space-x-4 #{@class}"}>
+          <%= for {label, opts} <- prepared_links do %>
+            <%= link label, opts %>
+          <% end %>
+        </nav>
+        <%= render_nav_rows(rows, %{class: nil}) %>
+        """
     end
   end
 
-  defp prepare_links(links) do
-    links
-    |> Enum.reduce(
-      {[], []},
-      fn link, {l, c} ->
+  defp find_active_node_id(_tree, ""), do: nil
+  defp find_active_node_id(tree, request_path) do
+    tree
+    |> OrderedNaryTree.find(fn n ->
+      case n.value do
+        %Navigator.Link{} = link -> generate_to(link) == request_path
+        _ -> false
+      end
+    end
+    )
+    |> case do
+      {:ok, active_node} ->
+        active_node.id
+
+      {:error, :not_found} ->
+        request_path_segments = String.split(request_path, "/")
+        parent_length = length(request_path_segments) - 1
+        parent_request_path = request_path_segments |> Enum.take(parent_length) |> Enum.join("/")
+        find_active_node_id(tree, parent_request_path)
+    end
+  end
+
+  defp build_rows(tree, active_node_id, rows \\ []) do
+    rows = case OrderedNaryTree.children(tree, active_node_id) do
+      {:ok, []} ->
+        rows
+
+      {:ok, children} ->
+        [children | rows]
+
+      {:error, :not_found} ->
+        {:ok, children} = OrderedNaryTree.children(tree)
+        [children]
+    end
+
+    case OrderedNaryTree.parent(tree, active_node_id) do
+      {:ok, p} -> build_rows(tree, p.id, rows)
+      {:error, :not_found} -> rows
+    end
+  end
+
+  defp prepare_links(row_nodes) do
+    row_nodes
+    |> Enum.map(
+      fn row_node ->
+        link = row_node.value
         label = generate_label(link)
-        prepared_links = l ++ [{label, link_options(link)}]
-        child_links = c ++ link.children
-        {prepared_links, child_links}
+        options = link_options(link)
+
+        {label, options}
       end
     )
   end
