@@ -16,14 +16,18 @@ defmodule Navigator.MixProject do
 
   def application do
     [
+      mod: {Navigator.Application, []},
+      start_phases: [configure: []],
       extra_applications: [:logger]
     ]
   end
 
   defp deps do
     [
+      {:ordered_nary_tree, "~> 0.0.4"},
       {:phoenix_html, "~> 3.0"},
       {:phoenix_live_view, "~> 0.17"},
+      {:stored, "~> 0.0.8"},
       {:ex_doc, ">= 0.0.0", only: :dev},
       {:dialyxir, "~> 1.0", only: :dev, runtime: false},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false},
