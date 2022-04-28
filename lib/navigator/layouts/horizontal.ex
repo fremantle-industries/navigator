@@ -25,7 +25,7 @@ defmodule Navigator.Layouts.Horizontal do
         prepared_links = prepare_links(row_nodes)
 
         ~H"""
-        <nav class={"flex flex-row items-center space-x-4 #{@class}"}>
+        <nav class={nav_class(@class)}>
           <%= for {label, opts} <- prepared_links do %>
             <%= link label, opts %>
           <% end %>
@@ -33,6 +33,16 @@ defmodule Navigator.Layouts.Horizontal do
         <%= render_nav_rows(rows, %{class: nil}) %>
         """
     end
+  end
+
+  @default_nav_classes ~w[flex flex-row items-center space-x-4]
+  defp nav_class(class) do
+    class
+    |> case do
+      nil -> @default_nav_classes
+      c -> [c | @default_nav_classes]
+    end
+    |> Enum.join(" ")
   end
 
   defp find_active_node_id(_tree, ""), do: nil
@@ -58,32 +68,40 @@ defmodule Navigator.Layouts.Horizontal do
   end
 
   defp build_rows(tree, active_node_id, rows \\ []) do
-    rows = case OrderedNaryTree.children(tree, active_node_id) do
-      {:ok, []} ->
-        rows
-
-      {:ok, children} ->
-        [children | rows]
+    case OrderedNaryTree.parent(tree, active_node_id) do
+      {:ok, p} ->
+        {:ok, siblings} = OrderedNaryTree.children(tree, p.id)
+        rows = [children_with_active_node(siblings, active_node_id) | rows]
+        build_rows(tree, p.id, rows)
 
       {:error, :not_found} ->
-        {:ok, children} = OrderedNaryTree.children(tree)
-        [children]
+        rows
     end
+  end
 
-    case OrderedNaryTree.parent(tree, active_node_id) do
-      {:ok, p} -> build_rows(tree, p.id, rows)
-      {:error, :not_found} -> rows
-    end
+  defp children_with_active_node(children, active_node_id) do
+    children
+    |> Enum.map(fn n ->
+      case n.id do
+        ^active_node_id -> {n, :active}
+        _ -> n
+      end
+    end)
   end
 
   defp prepare_links(row_nodes) do
     row_nodes
     |> Enum.map(
-      fn row_node ->
-        link = row_node.value
-        label = generate_label(link)
-        options = link_options(link)
-
+      fn
+        {row_node, active_status} ->
+          {row_node, link_options(row_node.value, active_status)}
+        row_node ->
+          {row_node, link_options(row_node.value, :inactive)}
+      end
+    )
+    |> Enum.map(
+      fn {row_node, options} ->
+        label = generate_label(row_node.value)
         {label, options}
       end
     )
@@ -96,10 +114,12 @@ defmodule Navigator.Layouts.Horizontal do
     end
   end
 
-  defp link_options(link) do
+  defp link_options(link, active_status) do
     []
     |> put_to(link)
-    |> put_class(link)
+    |> put_default_class()
+    |> put_link_class(link)
+    |> put_active_class(active_status)
     |> put_option(:method, link.method)
   end
 
@@ -116,9 +136,23 @@ defmodule Navigator.Layouts.Horizontal do
   end
 
   @default_class "text-black hover:text-opacity-75"
-  defp put_class(options, link) do
-    class = if link.class == nil, do: link.class, else: "#{@default_class} #{link.class}"
-    Keyword.put(options, :class, class)
+  defp put_default_class(options) do
+    Keyword.put(options, :class, @default_class)
+  end
+
+  defp put_link_class(options, link) do
+    case link.class do
+      nil -> options
+      c -> Keyword.put(options, :class, "#{options[:class]} #{c}")
+    end
+  end
+
+  @default_active_class "active"
+  defp put_active_class(options, active_status) do
+    case active_status do
+      :active -> Keyword.put(options, :class, "#{options[:class]} #{@default_active_class}")
+      _ -> options
+    end
   end
 
   defp put_option(options, key, value) do
