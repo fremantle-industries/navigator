@@ -5,17 +5,19 @@ defmodule Navigator.Link do
   @type t :: %Link{
           label: label,
           to: mfa,
-          class: String.t | nil,
+          active_class: String.t(),
+          class: String.t() | nil,
           icon: String.t() | nil,
           method: :get | :post | :put | :patch | :delete | nil,
           condition: mfa | nil,
           otp_app: atom
         }
 
-  @enforce_keys ~w[label to]a
+  @enforce_keys ~w[label to active_class]a
   defstruct ~w[
     label
     to
+    active_class
     class
     icon
     method

@@ -86,6 +86,22 @@ defmodule Navigator.ConfigTest do
     assert length(depth_2_child_node_2_children) == 0
   end
 
+  test ".parse/1 can globally override active_class" do
+    links_env = %{
+      app_1: [
+        @valid_link_config
+      ]
+    }
+
+    assert [:app_1] = Navigator.Config.parse!(links: links_env, active_class: "custom-active")
+    assert {:ok, app_1} = Navigator.LinkAppStore.find(:app_1)
+
+    assert {:ok, root_children} = OrderedNaryTree.children(app_1.links)
+    assert length(root_children) == 1
+    child_node_1 = Enum.at(root_children, 0)
+    assert child_node_1.value.active_class == "custom-active"
+  end
+
   test ".parse/1 can assign class" do
     links_env = %{
       app_1: [

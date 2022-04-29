@@ -119,7 +119,7 @@ defmodule Navigator.Layouts.Horizontal do
     |> put_to(link)
     |> put_default_class()
     |> put_link_class(link)
-    |> put_active_class(active_status)
+    |> put_active_class(link, active_status)
     |> put_option(:method, link.method)
   end
 
@@ -147,10 +147,9 @@ defmodule Navigator.Layouts.Horizontal do
     end
   end
 
-  @default_active_class "active"
-  defp put_active_class(options, active_status) do
+  defp put_active_class(options, link, active_status) do
     case active_status do
-      :active -> Keyword.put(options, :class, "#{options[:class]} #{@default_active_class}")
+      :active -> Keyword.put(options, :class, "#{link.active_class} #{options[:class]}")
       _ -> options
     end
   end

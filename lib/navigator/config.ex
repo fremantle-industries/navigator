@@ -4,12 +4,14 @@ defmodule Navigator.Config do
   alias Navigator.Link
 
   def parse!(all_env \\ Application.get_all_env(:navigator)) do
+    active_class = get_active_class(all_env)
+
     all_env
     |> Keyword.get(:links, %{})
     |> Enum.reduce(
       [],
       fn {app_config, link_configs}, link_apps ->
-        links = build_tree(app_config, link_configs)
+        links = build_tree(app_config, link_configs, active_class)
         attrs = build_attrs(app_config, links)
         link_app = struct!(LinkApp, attrs)
         {:ok, _} = LinkAppStore.put(link_app)
@@ -20,26 +22,31 @@ defmodule Navigator.Config do
     |> Enum.reverse()
   end
 
-  defp build_tree(app_config, link_configs) do
+  @default_active_class "active"
+  defp get_active_class(all_env) do
+    Keyword.get(all_env, :active_class, @default_active_class)
+  end
+
+  defp build_tree(app_config, link_configs, active_class) do
     app_id = get_app_id(app_config)
     root_node = OrderedNaryTree.Node.new(app_id)
     tree = OrderedNaryTree.new(root_node)
-    add_children(tree, root_node.id, link_configs)
+    add_children(tree, root_node.id, link_configs, active_class)
   end
 
-  defp add_children(tree, parent_id, link_configs) do
+  defp add_children(tree, parent_id, link_configs, active_class) do
     case link_configs do
       [] ->
         tree
 
       [link_config | remaining_link_configs] ->
-        {link, children} = build_link(link_config)
+        {link, children} = build_link(link_config, active_class)
         child_node = OrderedNaryTree.Node.new(link)
         {:ok, tree} = OrderedNaryTree.add_child(tree, parent_id, child_node)
 
         tree
-        |> add_children(child_node.id, children)
-        |> add_children(parent_id, remaining_link_configs)
+        |> add_children(child_node.id, children, active_class)
+        |> add_children(parent_id, remaining_link_configs, active_class)
     end
   end
 
@@ -50,7 +57,7 @@ defmodule Navigator.Config do
     end
   end
 
-  defp build_link(link_config) do
+  defp build_link(link_config, active_class) do
     label = Map.fetch!(link_config, :label)
     to = Map.fetch!(link_config, :to)
     children = Map.get(link_config, :children) || []
@@ -62,6 +69,7 @@ defmodule Navigator.Config do
     link = %Link{
       label: label,
       to: to,
+      active_class: active_class,
       class: class,
       icon: icon,
       method: method,
