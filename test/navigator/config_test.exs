@@ -1,7 +1,7 @@
 defmodule Navigator.ConfigTest do
   use Navigator.DataCase
 
-  @valid_config %{
+  @links_env %{
     :app_1 => [
       %{label: "App 1 - Link 1", to: "/app_1_link_1"},
       %{label: "App 1 - Link 2", to: "/app_1_link_2"},
@@ -10,10 +10,11 @@ defmodule Navigator.ConfigTest do
       %{label: "App 2 - Link 1", to: "/app_2_link_1"},
     ]
   }
+  @all_env [links: @links_env]
   @valid_link_config %{label: "Valid Link", to: "/valid_link"}
 
   test ".parse/1 hydrates link applications & can assign an optional css class" do
-    assert [:app_1, :app_2] = Navigator.Config.parse!(@valid_config)
+    assert [:app_1, :app_2] = Navigator.Config.parse!(@all_env)
 
     assert {:ok, link_app_1} = Navigator.LinkAppStore.find(:app_1)
     assert link_app_1.class == nil
@@ -50,13 +51,13 @@ defmodule Navigator.ConfigTest do
       %{label: "App 1 - Child Link 1", to: "/app_1_child_link_1", children: grand_children_config},
       %{label: "App 1 - Child Link 2", to: "/app_1_child_link_2"},
     ]
-    config = %{
+    links_env = %{
       app_1: [
         %{label: "App 1 - Link 1", to: "/app_1_link_1", children: children_config},
       ]
     }
 
-    assert [:app_1] = Navigator.Config.parse!(config)
+    assert [:app_1] = Navigator.Config.parse!(links: links_env)
 
     assert {:ok, app_1} = Navigator.LinkAppStore.find(:app_1)
     assert {:ok, root_node} = OrderedNaryTree.root(app_1.links)
@@ -86,13 +87,13 @@ defmodule Navigator.ConfigTest do
   end
 
   test ".parse/1 can assign class" do
-    config = %{
+    links_env = %{
       app_1: [
         Map.put(@valid_link_config, :class, "new-class")
       ]
     }
 
-    assert [:app_1] = Navigator.Config.parse!(config)
+    assert [:app_1] = Navigator.Config.parse!(links: links_env)
     assert {:ok, app_1} = Navigator.LinkAppStore.find(:app_1)
 
     assert {:ok, root_children} = OrderedNaryTree.children(app_1.links)
@@ -102,13 +103,13 @@ defmodule Navigator.ConfigTest do
   end
 
   test ".parse/1 can assign icon" do
-    config = %{
+    links_env = %{
       app_1: [
         Map.put(@valid_link_config, :icon, "new-icon")
       ]
     }
 
-    assert [:app_1] = Navigator.Config.parse!(config)
+    assert [:app_1] = Navigator.Config.parse!(links: links_env)
     assert {:ok, app_1} = Navigator.LinkAppStore.find(:app_1)
 
     assert {:ok, root_children} = OrderedNaryTree.children(app_1.links)
@@ -118,13 +119,13 @@ defmodule Navigator.ConfigTest do
   end
 
   test ".parse/1 can assign method" do
-    config = %{
+    links_env = %{
       app_1: [
         Map.put(@valid_link_config, :method, :get)
       ]
     }
 
-    assert [:app_1] = Navigator.Config.parse!(config)
+    assert [:app_1] = Navigator.Config.parse!(links: links_env)
     assert {:ok, app_1} = Navigator.LinkAppStore.find(:app_1)
 
     assert {:ok, root_children} = OrderedNaryTree.children(app_1.links)
@@ -134,13 +135,13 @@ defmodule Navigator.ConfigTest do
   end
 
   test ".parse/1 can assign condition" do
-    config = %{
+    links_env = %{
       app_1: [
         Map.put(@valid_link_config, :condition, {MyModule, :my_func, []})
       ]
     }
 
-    assert [:app_1] = Navigator.Config.parse!(config)
+    assert [:app_1] = Navigator.Config.parse!(links: links_env)
     assert {:ok, app_1} = Navigator.LinkAppStore.find(:app_1)
 
     assert {:ok, root_children} = OrderedNaryTree.children(app_1.links)

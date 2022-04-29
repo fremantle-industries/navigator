@@ -3,8 +3,9 @@ defmodule Navigator.Config do
   alias Navigator.LinkAppStore
   alias Navigator.Link
 
-  def parse!(config \\ Application.get_env(:navigator, :links, %{})) do
-    config
+  def parse!(all_env \\ Application.get_all_env(:navigator)) do
+    all_env
+    |> Keyword.get(:links, %{})
     |> Enum.reduce(
       [],
       fn {app_config, link_configs}, link_apps ->
