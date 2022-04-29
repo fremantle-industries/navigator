@@ -6,6 +6,7 @@ defmodule Navigator.Link do
           label: label,
           to: mfa,
           active_class: String.t(),
+          base_class: String.t() | nil,
           class: String.t() | nil,
           icon: String.t() | nil,
           method: :get | :post | :put | :patch | :delete | nil,
@@ -18,6 +19,7 @@ defmodule Navigator.Link do
     label
     to
     active_class
+    base_class
     class
     icon
     method

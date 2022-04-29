@@ -117,7 +117,7 @@ defmodule Navigator.Layouts.Horizontal do
   defp link_options(link, active_status) do
     []
     |> put_to(link)
-    |> put_default_class()
+    |> put_base_class(link)
     |> put_link_class(link)
     |> put_active_class(link, active_status)
     |> put_option(:method, link.method)
@@ -135,9 +135,11 @@ defmodule Navigator.Layouts.Horizontal do
     end
   end
 
-  @default_class "text-black hover:text-opacity-75"
-  defp put_default_class(options) do
-    Keyword.put(options, :class, @default_class)
+  defp put_base_class(options, link) do
+    case link.base_class do
+      nil -> options
+      c -> Keyword.put(options, :class, c)
+    end
   end
 
   defp put_link_class(options, link) do
